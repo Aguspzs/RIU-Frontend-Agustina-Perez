@@ -1,31 +1,45 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, ViewChild, AfterViewInit, OnInit } from '@angular/core';
+import { Component, inject, signal, ViewChild, AfterViewInit, OnInit, computed } from '@angular/core';
+import { RouterModule, RouterLink, Router } from '@angular/router';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatDialog } from '@angular/material/dialog';
 
 import { HeroService } from '../../core/services/heroes.service';
 import { Hero } from '../../core/models/hero.model';
+import { Subscription } from 'rxjs';
+import { DeleteAlertComponent } from '../delete-alert/delete-alert.component';
 
 @Component({
   selector: 'app-hero-list',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatButtonModule, MatIconModule, MatInputModule],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatButtonModule, MatIconModule, MatInputModule, RouterModule, RouterLink],
   templateUrl: './hero-list.component.html',
   styleUrl: './hero-list.component.scss',
 })
 export class HeroListComponent implements OnInit, AfterViewInit {
   private heroService = inject(HeroService);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
+
+  private heroesSubscription: Subscription = new Subscription();
+
   heroes = signal<Hero[]>([]);
-  filteredHeroes = signal<Hero[]>([]);
   columns: string[] = ['id', 'name', 'alignment', 'actions'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  pageSize = 5;
-  pageIndex = 0;
+  pageSize = signal(5);
+  pageIndex = signal(0);
+
+  filteredHeroes = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    const end = start + this.pageSize();
+    return this.heroes().slice(start, end);
+  });
 
   ngOnInit() {
     this.loadHeroes();
@@ -33,38 +47,46 @@ export class HeroListComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.paginator.page.subscribe((event: PageEvent) => {
-      this.pageIndex = event.pageIndex;
-      this.pageSize = event.pageSize;
-      this.applyPagination();
+      this.pageIndex.set(event.pageIndex);
+      this.pageSize.set(event.pageSize);
     });
   }
 
   loadHeroes() {
-    this.heroService.getHeroes().subscribe((data) => {
-      this.heroes.set(data);
-      this.applyPagination();
+    this.heroesSubscription = this.heroService.getHeroes().subscribe((heroes) => {
+      this.heroes.set(heroes);
     });
-  }
-
-  applyPagination() {
-    const start = this.pageIndex * this.pageSize;
-    const end = start + this.pageSize;
-    this.filteredHeroes.set(this.heroes().slice(start, end));
   }
 
   filterHeroes(e: Event) {
     const input = e.target as HTMLInputElement;
     const value = input.value.trim().toLowerCase();
-    const filtered = this.heroes().filter((hero) => hero.name.toLowerCase().includes(value));
-    this.filteredHeroes.set(filtered.slice(0, this.pageSize));
-    this.pageIndex = 0;
+    const filtered = this.heroService.searchHeroes(value);
+    this.heroes.set(filtered);
+    this.pageIndex.set(0);
   }
 
-  editHero(hero: Hero) {
-    console.log('Editar', hero);
+  goToCreateHero() {
+    this.router.navigate(['/hero/new']);
+  }
+
+  goToEditHero(heroId: number) {
+    this.router.navigate(['/hero/edit', heroId]);
   }
 
   deleteHero(id: number) {
-    this.heroService.deleteHero(id);
+    const dialogRef = this.dialog.open(DeleteAlertComponent);
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.heroService.deleteHero(id);
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.heroesSubscription) {
+      this.heroesSubscription.unsubscribe();
+    }
   }
 }

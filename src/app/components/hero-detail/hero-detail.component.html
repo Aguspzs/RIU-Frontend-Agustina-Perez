@@ -1,1 +1,27 @@
-<p>hero-detail works!</p>
+@if (hero) {
+<div class="wrapper">
+  <div class="go-back">
+    <button mat-raised-button color="primary" (click)="goBack()">Go Back</button>
+  </div>
+  <h2>{{ hero?.name | uppercase }}</h2>
+  <img [ngSrc]="hero.images?.md || noImage" alt="{{ hero?.name }}" width="300" height="300" style="object-fit: cover" />
+  <div class="flex-center">
+    <h6 class="m-0">Name:</h6>
+    <p class="m-0">{{ hero.biography?.fullName || '-' }}</p>
+  </div>
+  <div class="flex-center">
+    <h6 class="m-0">Alignment:</h6>
+    <p class="m-0">{{ hero.biography?.alignment || '-' }}</p>
+  </div>
+  <div class="flex-center">
+    <h6 class="m-0">First appearance:</h6>
+    <p class="m-0">{{ hero.biography?.firstAppearance || '-' }}</p>
+  </div>
+  <div class="flex-center">
+    <h6 class="m-0">Group affiliation:</h6>
+    <p class="m-0">{{ hero.connections?.groupAffiliation || '-' }}</p>
+  </div>
+</div>
+} @else {
+<p>Cargando héroe...</p>
+}

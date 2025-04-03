@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
@@ -9,41 +9,53 @@ import { Hero } from '../models/hero.model';
 })
 export class HeroService {
   private http = inject(HttpClient);
-  private heroes$ = new BehaviorSubject<Hero[]>([]);
+  private heroes = new BehaviorSubject<Hero[]>([]);
+  heroes$ = this.heroes.asObservable();
 
   constructor() {
     // Obtenemos los héroes al iniciar la aplicación para almacenarlos y así simulamos una base de datos.
     this.loadHeroes();
   }
 
-  private loadHeroes(): void {
-    this.http.get<Hero[]>(API_CONFIG.HEROES_URL).subscribe((heroes) => this.heroes$.next(heroes));
+  loadHeroes(): void {
+    this.http.get<Hero[]>(API_CONFIG.HEROES_URL).subscribe({
+      next: (heroes) => this.heroes.next(heroes),
+      error: (err) => console.error('Error loading heroes:', err),
+    });
   }
 
   getHeroes(): Observable<Hero[]> {
-    return this.heroes$.asObservable();
+    return this.heroes$;
   }
 
-  getHeroById(id: number): Observable<Hero | undefined> {
-    return this.getHeroes().pipe(map((heroes) => heroes.find((hero) => hero.id === id)));
+  getHeroById(id: number): Hero | undefined {
+    return this.heroes.getValue().find((hero) => hero.id === id);
   }
 
-  searchHeroes(name: string): Observable<Hero[]> {
-    return this.getHeroes().pipe(map((heroes) => heroes.filter((hero) => hero.name.toLowerCase().includes(name.toLowerCase()))));
+  searchHeroes(searchTerm: string): Hero[] {
+    return this.heroes.getValue().filter((hero) => hero.name.toLowerCase().includes(searchTerm.toLowerCase()));
   }
 
-  addHero(newHero: Hero): void {
-    const heroes = this.heroes$.getValue();
-    this.heroes$.next([...heroes, newHero]);
+  addHero(hero: Hero): void {
+    const currentHeroes = this.heroes.getValue();
+    const newHero = { ...hero, id: this.generateId(currentHeroes) };
+    this.heroes.next([...currentHeroes, newHero]);
+  }
+
+  private generateId(heroes: Hero[]): number {
+    return heroes.length ? Math.max(...heroes.map((h) => h.id)) + 1 : 1;
   }
 
   updateHero(updatedHero: Hero): void {
-    const heroes = this.heroes$.getValue().map((hero) => (hero.id === updatedHero.id ? updatedHero : hero));
-    this.heroes$.next(heroes);
+    console.log(updatedHero);
+    const currentHeroes = this.heroes.getValue().map((hero) => (hero.id === updatedHero.id ? { ...hero, ...updatedHero } : hero));
+    console.log(currentHeroes);
+    this.heroes.next(currentHeroes);
+    console.log(this.heroes.value);
   }
 
   deleteHero(id: number): void {
-    const heroes = this.heroes$.getValue().filter((hero) => hero.id !== id);
-    this.heroes$.next(heroes);
+    const filteredHeroes = this.heroes.getValue().filter((hero) => hero.id !== id);
+    this.heroes.next(filteredHeroes);
   }
 }
