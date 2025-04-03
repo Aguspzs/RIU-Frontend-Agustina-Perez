@@ -49,9 +49,7 @@ export class HeroService {
   updateHero(updatedHero: Hero): void {
     console.log(updatedHero);
     const currentHeroes = this.heroes.getValue().map((hero) => (hero.id === updatedHero.id ? { ...hero, ...updatedHero } : hero));
-    console.log(currentHeroes);
     this.heroes.next(currentHeroes);
-    console.log(this.heroes.value);
   }
 
   deleteHero(id: number): void {

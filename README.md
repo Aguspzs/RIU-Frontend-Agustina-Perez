@@ -25,3 +25,28 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## 🔧 Configuración y Ejecución
+
+1. **Clonar el repositorio**
+
+   ```bash
+   git clone <URL_DEL_REPO>
+   cd heroes-crud
+   ```
+
+2. **Levantar los contenedores**
+
+   ```bash
+   docker compose up --build
+   ```
+
+3. **Acceder a la aplicación**
+
+   - Abrir en el navegador: [http://localhost:4200/](http://localhost:4200/)
+
+4. **Detener los contenedores**
+   ```bash
+   docker compose down
+   ```
+   Esto detendrá y eliminará los contenedores.

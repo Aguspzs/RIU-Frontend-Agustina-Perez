@@ -4,6 +4,11 @@ export interface Hero {
   slug?: string;
   biography?: {
     alignment: string;
+    fullName: string;
+    firstAppearance: string;
+  };
+  connections?: {
+    groupAffiliation: string;
   };
   work?: {
     base: string;
