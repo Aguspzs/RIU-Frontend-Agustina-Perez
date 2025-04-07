@@ -12,11 +12,6 @@ export class HeroService {
   private heroes = new BehaviorSubject<Hero[]>([]);
   heroes$ = this.heroes.asObservable();
 
-  constructor() {
-    // Obtenemos los héroes al iniciar la aplicación para almacenarlos y así simulamos una base de datos.
-    this.loadHeroes();
-  }
-
   loadHeroes(): void {
     this.http.get<Hero[]>(API_CONFIG.HEROES_URL).subscribe({
       next: (heroes) => this.heroes.next(heroes),

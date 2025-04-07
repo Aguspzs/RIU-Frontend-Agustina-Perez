@@ -4,8 +4,8 @@ export interface Hero {
   slug?: string;
   biography?: {
     alignment: string;
-    fullName: string;
-    firstAppearance: string;
+    fullName?: string | undefined;
+    firstAppearance?: string | undefined;
   };
   connections?: {
     groupAffiliation: string;
