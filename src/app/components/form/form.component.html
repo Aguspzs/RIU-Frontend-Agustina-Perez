@@ -6,7 +6,7 @@
       <div class="form-row">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Name</mat-label>
-          <input matInput formControlName="name" required />
+          <input uppercaseName matInput formControlName="name" required />
           <mat-error *ngIf="heroForm.get('name')?.invalid && heroForm.get('name')?.touched"> Name is required </mat-error>
         </mat-form-field>
       </div>

@@ -1,13 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HeroListComponent } from './components/hero-list/hero-list.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { HeroService } from './core/services/heroes.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeroListComponent, NavbarComponent],
+  imports: [RouterOutlet, NavbarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

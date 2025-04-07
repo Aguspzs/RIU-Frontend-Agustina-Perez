@@ -11,11 +11,12 @@ import { MatCardModule } from '@angular/material/card';
 
 import { HeroService } from '../../core/services/heroes.service';
 import { Hero } from '../../core/models/hero.model';
+import { UppercaseNameDirective } from '../../shared/directives/uppercase-name.directive';
 
 @Component({
   selector: 'app-hero-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatInputModule, MatFormFieldModule, MatSelectModule, MatCardModule],
+  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatInputModule, MatFormFieldModule, MatSelectModule, MatCardModule, UppercaseNameDirective],
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss'],
 })
